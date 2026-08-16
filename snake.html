@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anik's Snake Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111827;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .game-box {
+      text-align: center;
+      width: min(95vw, 500px);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #score {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 1;
+      background: #07111f;
+      border: 3px solid #22c55e;
+      border-radius: 12px;
+      display: block;
+      margin: auto;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background: #22c55e;
+      color: white;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .controls {
+      margin-top: 15px;
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .controls button {
+      margin: 0;
+      padding: 12px;
+      font-size: 20px;
+    }
+
+    .empty {
+      visibility: hidden;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="game-box">
+    <h1>🐍 Snake Game</h1>
+
+    <div id="score">Score: 0</div>
+
+    <canvas id="game" width="400" height="400"></canvas>
+
+    <button onclick="restartGame()">Restart Game</button>
+
+    <div class="controls">
+      <button class="empty"></button>
+      <button onclick="changeDirection('up')">⬆️</button>
+      <button class="empty"></button>
+
+      <button onclick="changeDirection('left')">⬅️</button>
+      <button onclick="changeDirection('down')">⬇️</button>
+      <button onclick="changeDirection('right')">➡️</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const grid = 20;
+    const size = canvas.width / grid;
+
+    let snake;
+    let food;
+    let direction;
+    let nextDirection;
+    let score;
+    let gameOver;
+    let gameLoop;
+
+    function restartGame() {
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+
+      food = createFood();
+      direction = "right";
+      nextDirection = "right";
+      score = 0;
+      gameOver = false;
+
+      document.getElementById("score").textContent = "Score: 0";
+
+      clearInterval(gameLoop);
+      gameLoop = setInterval(updateGame, 120);
+
+      drawGame();
+    }
+
+    function createFood() {
+      let newFood;
+
+      do {
+        newFood = {
+          x: Math.floor(Math.random() * grid),
+          y: Math.floor(Math.random() * grid)
+        };
+      } while (
+        snake &&
+        snake.some(part => part.x === newFood.x && part.y === newFood.y)
+      );
+
+      return newFood;
+    }
+
+    function changeDirection(newDirection) {
+      if (newDirection === "up" && direction !== "down") {
+        nextDirection = "up";
+      }
+
+      if (newDirection === "down" && direction !== "up") {
+        nextDirection = "down";
+      }
+
+      if (newDirection === "left" && direction !== "right") {
+        nextDirection = "left";
+      }
+
+      if (newDirection === "right" && direction !== "left") {
+        nextDirection = "right";
+      }
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "ArrowUp") changeDirection("up");
+      if (event.key === "ArrowDown") changeDirection("down");
+      if (event.key === "ArrowLeft") changeDirection("left");
+      if (event.key === "ArrowRight") changeDirection("right");
+    });
+
+    function updateGame() {
+      if (gameOver) return;
+
+      direction = nextDirection;
+
+      let head = { ...snake[0] };
+
+      if (direction === "up") head.y--;
+      if (direction === "down") head.y++;
+      if (direction === "left") head.x--;
+      if (direction === "right") head.x++;
+
+      // Wall collision
+      if (
+        head.x < 0 ||
+        head.x >= grid ||
+        head.y < 0 ||
+        head.y >= grid
+      ) {
+        endGame();
+        return;
+      }
+
+      // Self collision
+      if (
+        snake.some(part => part.x === head.x && part.y === head.y)
+      ) {
+        endGame();
+        return;
+      }
+
+      snake.unshift(head);
+
+      // Food
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById("score").textContent =
+          "Score: " + score;
+
+        food = createFood();
+      } else {
+        snake.pop();
+      }
+
+      drawGame();
+    }
+
+    function drawGame() {
+      ctx.fillStyle = "#07111f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Food
+      ctx.fillStyle = "#ef4444";
+      ctx.beginPath();
+      ctx.arc(
+        food.x * grid + grid / 2,
+        food.y * grid + grid / 2,
+        grid / 2 - 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      // Snake
+      snake.forEach((part, index) => {
+        ctx.fillStyle = index === 0 ? "#4ade80" : "#22c55e";
+
+        ctx.fillRect(
+          part.x * grid + 1,
+          part.y * grid + 1,
+          grid - 2,
+          grid - 2
+        );
+      });
+    }
+
+    function endGame() {
+      gameOver = true;
+      clearInterval(gameLoop);
+
+      ctx.fillStyle = "rgba(0,0,0,0.7)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 32px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        "Game Over!",
+        canvas.width / 2,
+        canvas.height / 2 - 10
+      );
+
+      ctx.font = "20px Arial";
+      ctx.fillText(
+        "Score: " + score,
+        canvas.width / 2,
+        canvas.height / 2 + 30
+      );
+    }
+
+    restartGame();
+  </script>
+
+</body>
+</html>
