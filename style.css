@@ -432,6 +432,135 @@ nav {
     border-radius: 10px;
 }
 
+/* School */
+
+.school-card {
+
+    max-width: 650px;
+
+    margin: auto;
+
+    text-align: center;
+
+    padding: 35px;
+
+    background: #f5f8ff;
+
+    border: 2px solid #dce9ff;
+
+    border-radius: 20px;
+
+    transition: 0.4s;
+
+}
+
+.school-card:hover {
+
+    transform: translateY(-8px);
+
+    box-shadow:
+        0 15px 30px rgba(0,0,0,0.10);
+
+}
+
+.school-icon {
+
+    font-size: 55px;
+
+    margin-bottom: 15px;
+
+}
+
+.school-card h3 {
+
+    color: #1455c0;
+
+    font-size: 25px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* Family */
+
+.family-container {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 25px;
+
+}
+
+
+.family-card {
+
+    text-align: center;
+
+    padding: 30px 20px;
+
+    background: #f5f8ff;
+
+    border: 2px solid #dce9ff;
+
+    border-radius: 20px;
+
+    transition: 0.4s;
+
+}
+
+
+.family-card:hover {
+
+    transform: translateY(-10px);
+
+    box-shadow:
+        0 15px 30px rgba(0,0,0,0.12);
+
+}
+
+
+.family-icon {
+
+    font-size: 50px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.family-card h3 {
+
+    color: #1455c0;
+
+    margin-bottom: 15px;
+
+}
+
+
+.family-card p {
+
+    font-size: 15px;
+
+    line-height: 1.6;
+
+}
+
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .family-container {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
 
 
 /* PYTHON */
